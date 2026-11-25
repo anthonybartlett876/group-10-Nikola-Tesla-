@@ -5,5 +5,23 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
-  "type": "module"
+  "type": "module",
+  "name": "group-10-nikola-tesla-",
+  "version": "1.0.0",
+  "description": "software engineering Nikola Tesla interactive conversational experience",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charliebourne06/group-10-Nikola-Tesla-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charliebourne06/group-10-Nikola-Tesla-/issues"
+  },
+  "homepage": "https://github.com/charliebourne06/group-10-Nikola-Tesla-#readme"
 }

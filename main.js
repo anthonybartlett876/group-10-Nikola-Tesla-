@@ -1,12 +1,15 @@
+// node --watch main.js
 import express from "express";
 import cors from "cors";
+import fs from "fs";
 import React from "react";
 import { renderToString } from "react-dom/server";
 
 const app = express();
 
 app.use(cors());
-
+app.use(express.json());
+app.use(express.static("."));
 // Serve files in the repo folder so /background.png loads in the browser
 app.use(express.static("."));
 
@@ -19,7 +22,7 @@ function TextBoxPage() {
       style: {
         backgroundImage: "url('/background.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "left bottom",
         backgroundRepeat: "no-repeat",
         minHeight: "100vh",
         padding: "20px",
@@ -28,14 +31,14 @@ function TextBoxPage() {
         justifyContent: "flex-end",
         alignItems: "flex-end"
         margin: 0,
-        padding: "36px 48px",
+        padding: "20px",
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center"
       }
     },
     React.createElement(
-      "form",
+      "div",
       {
         style: {
             width: "600px",
@@ -104,7 +107,7 @@ function TextBoxPage() {
          style: {
           width: "58%",
           maxWidth: "780px",
-          minWidth: "360px",
+          minWidth: "240px",
           height: "66vh",
           minHeight: "420px",
           padding: "20px",
@@ -112,53 +115,122 @@ function TextBoxPage() {
           border: "2px solid #29b6f6",
           borderRadius: "20px",
           display: "flex",
-          alignItems: "flex-end",
+          flexDirection: "column",
           gap: "12px"
         }
-        
       },
-      React.createElement("input", {
-        type: "text",
-        placeholder: "Type your message...",
+      React.createElement("div", {
+        id: "chat-history",
         style: {
           flex: 1,
-          height: "48px",
-          padding: "0 18px",
-          fontSize: "15px",
-          backgroundColor: "rgba(10, 28, 58, 0.65)",
-          border: "2px solid #29b6f6",
-          borderRadius: "20px",
+          overflowY: "auto",
           display: "flex",
-          alignItems: "flex-end",
-          gap: "12px"
+          flexDirection: "column",
+          gap: "10px",
+          paddingRight: "6px"
         }
       }),
       React.createElement(
-        "button",
+        "form",
         {
-          type: "submit",
-          "aria-label":"Send message",
-            style: {
-            height: "48px",
-            padding: "14 14px",
-            fontSize: "15px",
-            cursor: "pointer",
-            colour: "#fafafa",
-            backgroundColor: "rgba(24, 168, 197, 0.72)",
-            backgroundColor: "rgba(173, 216, 230, 0.65)",
-            border: "2px solid #29b6f6",
-            borderRadius: "22px",
+          id: "chat-form",
+          style: {
             display: "flex",
-            flexshrink: 0,
+            alignItems: "center",
+            gap: "12px"
           }
         },
-        "➤"
+        React.createElement("input", {
+          id: "user-input",
+          type: "text",
+          placeholder: "Type your message...",
+          autoComplete: "off",
+          style: {
+            flex: 1,
+            minWidth: 0,
+            height: "48px",
+            padding: "0 18px",
+            fontSize: "15px",
+            color: "#ffffff",
+            backgroundColor: "rgba(10, 28, 58, 0.65)",
+            border: "2px solid #29b6f6",
+            borderRadius: "20px",
+            outline: "none"
+          }
+        }),
+        React.createElement(
+          "button",
+          {
+            type: "submit",
+            "aria-label": "Send message",
+            style: {
+              height: "48px",
+              padding: "0 16px",
+              fontSize: "15px",
+              cursor: "pointer",
+              color: "#fafafa",
+              backgroundColor: "rgba(24, 168, 197, 0.72)",
+              border: "2px solid #29b6f6",
+              borderRadius: "22px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
+            }
+          },
+          "➤"
+        )
       )
-    )
+    ),
+    React.createElement("script", {
+      dangerouslySetInnerHTML: {
+        __html: `
+          const form = document.getElementById('chat-form');
+          const input = document.getElementById('user-input');
+          const historyBox = document.getElementById('chat-history');
+
+          function showMessage(text) {
+            const msg = document.createElement('div');
+            msg.textContent = text;
+            msg.style.alignSelf = 'flex-end';
+            msg.style.maxWidth = '80%';
+            msg.style.padding = '10px 14px';
+            msg.style.borderRadius = '14px';
+            msg.style.fontSize = '14px';
+            msg.style.fontFamily = 'sans-serif';
+            msg.style.color = '#ffffff';
+            msg.style.backgroundColor = 'rgba(24, 168, 197, 0.85)';
+            msg.style.wordWrap = 'break-word';
+
+            historyBox.appendChild(msg);
+            historyBox.scrollTop = historyBox.scrollHeight;
+          }
+
+          fetch('/api/history')
+            .then((res) => res.json())
+            .then((messages) => {
+              messages.forEach((m) => showMessage(m.text));
+            });
+
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+
+            showMessage(text);
+            input.value = '';
+
+            fetch('/api/history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text })
+            });
+          });
+        `
+      }
+    })
   );
 }
-
-
 //gets the text box
 app.get("/", (req, res) => {
   res.send(renderToString(React.createElement(TextBoxPage)));
@@ -170,6 +242,18 @@ app.get("/chat", (req, res) => {
   res.send(renderToString(React.createElement(TextBoxPage)));
 });
 
+//gets the chat history
+app.get("/api/history", (req, res) => {
+  const messages = JSON.parse(fs.readFileSync("./chat_history.json", "utf-8"));
+  res.json(messages);
+});
+
+app.post("/api/history", (req, res) => {
+  const messages = JSON.parse(fs.readFileSync("./chat_history.json", "utf-8"));
+  messages.push({ text: req.body.text });
+  fs.writeFileSync("./chat_history.json", JSON.stringify(messages, null, 2));
+  res.status(201).json({ ok: true });
+});
 
 
 app.listen(3000, () => {

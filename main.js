@@ -29,14 +29,14 @@ function TextBoxPage() {
         boxSizing: "border-box",
         display: "flex",
         justifyContent: "flex-end",
-        alignItems: "flex-end"
+        alignItems: "flex-end",
         margin: 0,
         padding: "20px",
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center"
       }
-    },
+    }),
     React.createElement(
       "div",
       {
@@ -54,7 +54,7 @@ function TextBoxPage() {
             justifyContent: "flex-end",
             gap: "12px"
         }
-    },
+    }),
       React.createElement(
     "div",
     {

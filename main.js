@@ -1,3 +1,4 @@
+//node --watch main.js
 import express from "express";
 import cors from "cors";
 import React from "react";
@@ -12,6 +13,7 @@ app.use(express.static("."));
 
 
 // sets background image 
+// sets background image 
 function TextBoxPage() {
   return React.createElement(
     "div",
@@ -19,11 +21,11 @@ function TextBoxPage() {
       style: {
         backgroundImage: "url('/background.png')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "left bottom",
         backgroundRepeat: "no-repeat",
         minHeight: "100vh",
         margin: 0,
-        padding: "36px 48px",
+        padding: "20px",
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center"
@@ -32,11 +34,10 @@ function TextBoxPage() {
     React.createElement(
       "form",
       {
-
-         style: {
-          width: "58%",
+        style: {
+          width: "50%",
           maxWidth: "780px",
-          minWidth: "360px",
+          minWidth: "240px",
           height: "66vh",
           minHeight: "420px",
           padding: "20px",
@@ -47,41 +48,40 @@ function TextBoxPage() {
           alignItems: "flex-end",
           gap: "12px"
         }
-        
       },
       React.createElement("input", {
         type: "text",
         placeholder: "Type your message...",
         style: {
           flex: 1,
+          minWidth: 0,
           height: "48px",
           padding: "0 18px",
           fontSize: "15px",
+          color: "#ffffff",
           backgroundColor: "rgba(10, 28, 58, 0.65)",
           border: "2px solid #29b6f6",
-          borderRadius: "20px",
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "12px"
+          borderRadius: "20px"
         }
       }),
       React.createElement(
         "button",
         {
           type: "submit",
-          "aria-label":"Send message",
-            style: {
+          "aria-label": "Send message",
+          style: {
             height: "48px",
-            padding: "14 14px",
+            padding: "0 16px",
             fontSize: "15px",
             cursor: "pointer",
-            colour: "#fafafa",
+            color: "#fafafa",
             backgroundColor: "rgba(24, 168, 197, 0.72)",
-            backgroundColor: "rgba(173, 216, 230, 0.65)",
             border: "2px solid #29b6f6",
             borderRadius: "22px",
             display: "flex",
-            flexshrink: 0,
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0
           }
         },
         "➤"
@@ -89,7 +89,6 @@ function TextBoxPage() {
     )
   );
 }
-
 
 //gets the text box
 app.get("/", (req, res) => {
